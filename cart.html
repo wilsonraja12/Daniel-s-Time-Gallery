@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keranjang | Daniel's Time Gallery</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <h1>Daniel's Time Gallery</h1>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html#home">Home</a></li>
+                <li><a href="index.html#collection">Collection</a></li>
+                <li><a href="index.html#about">About</a></li>
+                <li><a href="index.html#contact">Contact</a></li>
+            </ul>
+            <div class="nav-icons">
+                <a href="cart.html"><i class="fas fa-shopping-cart"></i></a>
+            </div>
+        </nav>
+    </header>
+    <section class="cart-section">
+        <div class="cart-container">
+            <h2>Keranjang Belanja</h2>
+            <div id="cart-items"></div>
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cart-total-price">Rp 0</span>
+            </div>
+            <button class="wa-button" id="checkout-wa"><i class="fab fa-whatsapp"></i> Checkout via WhatsApp</button>
+        </div>
+    </section>
+    <script src="js/cart.js"></script>
+</body>
+</html> 

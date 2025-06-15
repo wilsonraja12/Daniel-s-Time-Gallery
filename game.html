@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game Tic Tac Toe | Daniel's Time Gallery</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="logo">
+        <h1>Daniel's Time Gallery</h1>
+      </div>
+      <ul class="nav-links">
+        <li><a href="index.html#home">Home</a></li>
+        <li><a href="index.html#collection">Collection</a></li>
+        <li><a href="index.html#about">About</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+        <li><a href="game.html" class="active">Game</a></li>
+      </ul>
+      <div class="nav-icons">
+        <a href="cart.html"><i class="fas fa-shopping-cart"></i></a>
+      </div>
+    </nav>
+  </header>
+  <main>
+    <section class="game-section">
+      <h2>Tic Tac Toe <i class="fas fa-clock"></i></h2>
+      <p class="game-desc">Mainkan game klasik Tic Tac Toe bersama teman atau lawan AI! <span class="emoji">🎮</span></p>
+      <div class="game-controls">
+        <label for="modeSelect">Mode: <span class="emoji">🎯</span></label>
+        <select id="modeSelect">
+          <option value="2p">2 Pemain</option>
+          <option value="ai">Lawan AI</option>
+        </select>
+      </div>
+      <div class="scoreboard">
+        Skor X: <span id="scoreX">0</span> | Skor O: <span id="scoreO">0</span>
+      </div>
+      <div id="status" class="game-status">Player X's turn <span class="emoji">🎲</span></div>
+      <div class="board" id="board"></div>
+      <button id="resetBtn" class="wa-button">Reset Game <span class="emoji">🔄</span></button>
+    </section>
+  </main>
+  <footer>
+    <div class="footer-content">
+      <p>&copy; 2024 Daniel's Time Gallery. All rights reserved. <span class="emoji">⌚</span></p>
+    </div>
+  </footer>
+  <script>
+    const board = document.getElementById("board");
+    const statusText = document.getElementById("status");
+    const resetBtn = document.getElementById("resetBtn");
+    const modeSelect = document.getElementById("modeSelect");
+    const scoreXEl = document.getElementById("scoreX");
+    const scoreOEl = document.getElementById("scoreO");
+
+    let currentPlayer = "X";
+    let gameBoard = Array(9).fill("");
+    let gameActive = true;
+    let mode = "2p"; 
+    let scoreX = 0;
+    let scoreO = 0;
+
+    let winConditions = [
+      [0, 1, 2], [3, 4, 5], [6, 7, 8],
+      [0, 3, 6], [1, 4, 7], [2, 5, 8],
+      [0, 4, 8], [2, 4, 6],
+    ];
+
+    modeSelect.addEventListener("change", () => {
+      mode = modeSelect.value;
+      resetGame(true);
+    });
+
+    function renderBoard() {
+      board.innerHTML = "";
+      gameBoard.forEach((val, i) => {
+        const cell = document.createElement("div");
+        cell.classList.add("cell");
+        cell.dataset.index = i;
+        cell.textContent = val;
+        cell.addEventListener("click", handleClick);
+        board.appendChild(cell);
+      });
+    }
+
+    function handleClick(e) {
+      const index = e.target.dataset.index;
+      if (gameBoard[index] || !gameActive) return;
+
+      gameBoard[index] = currentPlayer;
+      e.target.textContent = currentPlayer;
+      checkWinner();
+
+      if (gameActive) {
+        currentPlayer = currentPlayer === "X" ? "O" : "X";
+        statusText.textContent = `Player ${currentPlayer}'s turn`;
+
+        if (mode === "ai" && currentPlayer === "O") {
+          setTimeout(makeAIMove, 500);
+        }
+      }
+    }
+
+    function makeAIMove() {
+      let bestScore = -Infinity;
+      let bestMove;
+
+      for (let i = 0; i < gameBoard.length; i++) {
+        if (gameBoard[i] === "") {
+          gameBoard[i] = "O";
+          let score = minimax(gameBoard, 0, false);
+          gameBoard[i] = "";
+          if (score > bestScore) {
+            bestScore = score;
+            bestMove = i;
+          }
+        }
+      }
+
+      if (bestMove !== undefined) {
+        gameBoard[bestMove] = "O";
+        document.querySelector(`[data-index="${bestMove}"]`).textContent = "O";
+        checkWinner();
+        if (gameActive) {
+          currentPlayer = "X";
+          statusText.textContent = "Player X's turn";
+        }
+      }
+    }
+
+    function minimax(board, depth, isMaximizing) {
+      let result = checkWinnerForAI();
+      if (result !== null) {
+        return result === "O" ? 1 : result === "X" ? -1 : 0;
+      }
+
+      if (isMaximizing) {
+        let bestScore = -Infinity;
+        for (let i = 0; i < board.length; i++) {
+          if (board[i] === "") {
+            board[i] = "O";
+            let score = minimax(board, depth + 1, false);
+            board[i] = "";
+            bestScore = Math.max(score, bestScore);
+          }
+        }
+        return bestScore;
+      } else {
+        let bestScore = Infinity;
+        for (let i = 0; i < board.length; i++) {
+          if (board[i] === "") {
+            board[i] = "X";
+            let score = minimax(board, depth + 1, true);
+            board[i] = "";
+            bestScore = Math.min(score, bestScore);
+          }
+        }
+        return bestScore;
+      }
+    }
+
+    function checkWinnerForAI() {
+      for (let condition of winConditions) {
+        if (
+          gameBoard[condition[0]] &&
+          gameBoard[condition[0]] === gameBoard[condition[1]] &&
+          gameBoard[condition[0]] === gameBoard[condition[2]]
+        ) {
+          return gameBoard[condition[0]];
+        }
+      }
+      return gameBoard.includes("") ? null : "tie";
+    }
+
+    function checkWinner() {
+      for (let condition of winConditions) {
+        if (
+          gameBoard[condition[0]] &&
+          gameBoard[condition[0]] === gameBoard[condition[1]] &&
+          gameBoard[condition[0]] === gameBoard[condition[2]]
+        ) {
+          gameActive = false;
+          statusText.textContent = `Player ${gameBoard[condition[0]]} wins!`;
+          if (gameBoard[condition[0]] === "X") {
+            scoreX++;
+            scoreXEl.textContent = scoreX;
+          } else {
+            scoreO++;
+            scoreOEl.textContent = scoreO;
+          }
+          return;
+        }
+      }
+
+      if (!gameBoard.includes("")) {
+        gameActive = false;
+        statusText.textContent = "Game is a tie!";
+        return;
+      }
+    }
+
+    function resetGame(resetScore = false) {
+      gameBoard = Array(9).fill("");
+      gameActive = true;
+      currentPlayer = "X";
+      statusText.textContent = "Player X's turn";
+      if (resetScore) {
+        scoreX = 0;
+        scoreO = 0;
+        scoreXEl.textContent = "0";
+        scoreOEl.textContent = "0";
+      }
+      renderBoard();
+    }
+
+    resetBtn.addEventListener("click", () => resetGame());
+    renderBoard();
+  </script>
+</body>
+</html> 
